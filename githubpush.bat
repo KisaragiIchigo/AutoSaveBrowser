@@ -119,17 +119,51 @@ if errorlevel 1 (
 
 echo [INFO] プッシュ中...
 git push -u origin !BRANCH!
-if errorlevel 1 (
-  echo.
-  echo [ERROR] プッシュに失敗しました。よくある原因:
-  echo   1. リモートに先行コミットがある場合
-  echo      git pull --rebase origin !BRANCH!   を実行してから、もう一度このバッチを実行してください。
-  echo   2. 認証エラーの場合
-  echo      GitHub のユーザー名と Personal Access Token ［パスワード欄に入力］ を確認してください。
-  pause
-  exit /b 1
-)
+if not errorlevel 1 goto PUSH_OK
 
+echo.
+echo [WARN] プッシュが拒否されました。
+echo        リモート側に、手元には無いコミット［GitHub 上で作成した README 等］がある可能性があります。
+echo.
+set "ANSWER="
+set /p "ANSWER=  リモートの変更を取り込んでから再試行しますか？ ［Y / N］: "
+if /i not "!ANSWER!"=="Y" goto PUSH_FAILED
+
+echo.
+echo [INFO] リモートの変更を取り込んでいます...
+git pull --rebase origin !BRANCH!
+if errorlevel 1 goto REBASE_FAILED
+
+echo.
+echo [INFO] 再プッシュ中...
+git push -u origin !BRANCH!
+if errorlevel 1 goto PUSH_FAILED
+
+:PUSH_OK
 echo.
 echo [OK] プッシュ完了: %REPO_URL%
 pause
+exit /b 0
+
+:REBASE_FAILED
+echo.
+echo [ERROR] リモートの変更を取り込めませんでした。
+echo         同じファイルが両方で変更されている［競合］可能性があります。
+echo         競合したファイルを編集して解決した後、次を実行してください:
+echo           git add -A
+echo           git rebase --continue
+echo         README.md などで手元の内容をそのまま採用したい場合は、解決の代わりに:
+echo           git checkout --theirs README.md
+echo         取り込み自体をやめる場合: git rebase --abort
+pause
+exit /b 1
+
+:PUSH_FAILED
+echo.
+echo [ERROR] プッシュに失敗しました。よくある原因:
+echo   1. リモートに先行コミットがある場合
+echo      git pull --rebase origin !BRANCH!   を実行してから、もう一度このバッチを実行してください。
+echo   2. 認証エラーの場合
+echo      GitHub のユーザー名と Personal Access Token ［パスワード欄に入力］ を確認してください。
+pause
+exit /b 1

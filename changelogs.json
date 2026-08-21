@@ -198,5 +198,16 @@
     "purpose": "「サイドボタンで戻る/進むが効かない」「Ctrl+T や Alt が動かない」というユーザー報告に対し、4つの独立した原因（ショートカット検知層・既定メニューのアクセラレータ・サイドボタン未実装・Webview参照の取得方法）をすべて修正する",
     "scope": "ShortcutService（app-command / before-input-event の一元受け口とナビゲーション重複除去）、Menu.setApplicationMenu(null)、will-attach-webview によるゲスト preload 注入、webviewRegistry（タブID→Webview要素）、useShortcuts の IPC 購読化、BrowserArea の src 固定化、App のナビゲーションハンドラ",
     "concerns": "原因1: useShortcuts が Renderer の window.keydown だったため Webview フォーカス中は発火しなかった。原因2: 既定メニューが残っており Ctrl+W がウィンドウを閉じ Ctrl+R がアプリ全体を再読込していた。原因3: サイドボタンのハンドラが存在しなかった。原因4: querySelector('webview[src=...]') が遷移後に一致せず、かつ src={tab.url} バインドが遷移のたびに再ナビゲートを起こして履歴を壊していた。webview-preload.ts はどこにもアタッチされていない死にコードだったため、サイドボタン検知用に作り直して will-attach-webview で注入するよう変更（Ctrl+クリックは従来通り setWindowOpenHandler が担当）。IPC 境界の検証は zod 未導入のため文字列の許可リストで実施。型チェック・ビルド・起動確認済みだが、マウスサイドボタンの実機動作は入力デバイスが必要なため未検証"
+  },
+  {
+    "timestamp": "2026-08-21T20:35:00+09:00",
+    "target_files": [
+      ".gitattributes",
+      "githubpush.bat"
+    ],
+    "summary": "プッシュ拒否時にその場でリモート取り込み・再試行できるフローを追加し、.gitattributes でバッチファイルの CRLF 正規化を防止",
+    "purpose": "リモートに先行コミットがある状態でプッシュが拒否され作業が止まる問題の解消と、core.autocrlf=true によって .bat が LF で保存されクローン先で cmd パーサが壊れるリスクの排除",
+    "scope": "githubpush.bat のプッシュ処理をラベル分岐へ再構成（拒否検知→取り込み確認→git pull --rebase→再プッシュ、競合時の解決手順表示）、.gitattributes（既定 LF 正規化 / *.bat は -text でバイト列保持 / バイナリ指定）",
+    "concerns": "ローカルの分岐状態を再現して git pull --rebase → push の成功とリモートでの .bat の CRLF 保持を検証済み。ただし Y 入力後の分岐はパイプ入力を git push が消費するため自動テストでは再現できず、コマンド列を直接実行して検証した。ユーザーの実リポジトリでは README.md がリモート側にも存在するため rebase 時に競合する可能性が高い"
   }
 ]

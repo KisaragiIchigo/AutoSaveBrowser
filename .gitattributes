@@ -1,0 +1,13 @@
+# 既定: リポジトリ内の改行は LF に正規化する
+* text=auto eol=lf
+
+# バッチファイルは CP932 + CRLF のバイト列を一切変換させない。
+# LF に正規化されると cmd.exe のパーサがファイル位置を誤り、
+# 日本語行の直後のコマンドが欠落して壊れるため。
+*.bat -text
+
+# バイナリ
+*.ico binary
+*.exe binary
+*.png binary
+*.jpg binary
