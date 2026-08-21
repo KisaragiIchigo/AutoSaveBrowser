@@ -1,0 +1,172 @@
+[
+  {
+    "timestamp": "2026-08-21T12:03:00+09:00",
+    "target_files": [
+      "project_style.json",
+      "changelogs.json"
+    ],
+    "summary": "プロジェクトのスタイル定義と変更履歴ファイルの初期化",
+    "purpose": "URLSaverのリメイク版（AutoSaver Next）に向けたデザイン指針の策定と変更追跡の確立",
+    "scope": "プロジェクトルート設定",
+    "concerns": "なし"
+  },
+  {
+    "timestamp": "2026-08-21T12:07:40+09:00",
+    "target_files": [
+      "project_style.json",
+      "README.md",
+      "remake/package.json",
+      "remake/tsconfig.json",
+      "remake/tsconfig.node.json",
+      "remake/vite.config.ts",
+      "remake/tailwind.config.js",
+      "remake/postcss.config.js",
+      "remake/index.html",
+      "remake/src/renderer/types/index.ts",
+      "remake/src/renderer/index.css",
+      "remake/src/main/services/portablePaths.ts",
+      "remake/src/main/services/storage.ts",
+      "remake/src/main/services/utils.ts",
+      "remake/src/main/services/adblocker.ts",
+      "remake/src/main/services/archiver.ts",
+      "remake/src/main/services/queue.ts",
+      "remake/src/main/preload.ts",
+      "remake/src/main/main.ts",
+      "remake/src/renderer/hooks/useSettings.ts",
+      "remake/src/renderer/hooks/useTabs.ts",
+      "remake/src/renderer/hooks/useArchive.ts",
+      "remake/src/renderer/hooks/useShortcuts.ts",
+      "remake/src/renderer/components/TitleBar/TitleBar.tsx",
+      "remake/src/renderer/components/TabBar/TabItem.tsx",
+      "remake/src/renderer/components/TabBar/TabBar.tsx",
+      "remake/src/renderer/components/AddressBar/AddressBar.tsx",
+      "remake/src/renderer/components/BrowserArea/BrowserArea.tsx",
+      "remake/src/renderer/components/Sidebar/ArchiveSidebar.tsx",
+      "remake/src/renderer/components/SettingsModal/SettingsModal.tsx",
+      "remake/src/renderer/components/BookmarksModal/BookmarksModal.tsx",
+      "remake/src/renderer/components/Toast/ToastContainer.tsx",
+      "remake/src/renderer/App.tsx",
+      "remake/src/renderer/main.tsx"
+    ],
+    "summary": "AutoSaver Next（URLSaverリメイク版）の全面実装とUSBポータブル対応・Nordic Slate & Sageテーマの構築",
+    "purpose": "Python/QtWebEngine版の課題（EXE肥大化、古いUI、キュー不可視化、ポータブル設定の手間）を解決し、Electron + React + TypeScript + Tailwind CSS による超高速・高UXなWebアーカイブブラウザを提供",
+    "scope": "remake/ フォルダ配下の全フロントエンド・バックエンド・ビルド設定",
+    "concerns": "初回起動時のnpm install完了とTypeScriptコンパイル検証"
+  },
+  {
+    "timestamp": "2026-08-21T12:17:30+09:00",
+    "target_files": [
+      "コンパイル.bat",
+      "起動テスト.bat",
+      "remake/コンパイル.bat",
+      "remake/起動テスト.bat",
+      "remake/package.json",
+      "README.md",
+      "release/AutoSaverNext 1.0.0.exe"
+    ],
+    "summary": "ワンクリック実行用バッチファイル（コンパイル.bat、起動テスト.bat）の追加とポータブルEXE出力の検証",
+    "purpose": "ユーザーがワンクリックでreleaseフォルダに単体ポータブルEXEを出力し、開発モードで即座に起動テストできるようにするため",
+    "scope": "プロジェクトルートおよびremake内のバッチスクリプト、electron-builder出力先設定",
+    "concerns": "なし（release/AutoSaverNext 1.0.0.exe の出力・検証完了）"
+  },
+  {
+    "timestamp": "2026-08-21T12:21:40+09:00",
+    "target_files": [
+      "remake/src/main/services/adblocker.ts",
+      "remake/src/main/main.ts",
+      "remake/src/main/preload.ts",
+      "remake/src/main/webview-preload.ts",
+      "remake/src/renderer/components/BrowserArea/BrowserArea.tsx",
+      "remake/src/renderer/App.tsx",
+      "remake/src/renderer/types/index.ts",
+      "remake/vite.config.ts",
+      "release/AutoSaverNext 1.0.0.exe"
+    ],
+    "summary": "Ghostery AdBlockエンジンの統合、Ctrl+クリック・新規ウィンドウの確実なタブ化＆自動保存パイプラインの刷新、動作軽量化",
+    "purpose": "ユーザーから指摘された3つの課題（広告ブロックが効かない、動作が重い、SaveModeでCtrl+クリック時に新ウィンドウで開いてしまい保存されない）を根本解決",
+    "scope": "AdBlockエンジン（@ghostery/adblocker-electron）、Webview内Ctrlクリック・中クリック検知スクリプト、setWindowOpenHandlerによるポップアップ阻止と新規タブ化",
+    "concerns": "なし（型チェック・プロダクションビルド・ポータブルEXE再生成完了）"
+  },
+  {
+    "timestamp": "2026-08-21T12:29:30+09:00",
+    "target_files": [
+      "remake/src/main/services/adblocker.ts",
+      "remake/src/main/services/storage.ts",
+      "remake/src/main/main.ts",
+      "remake/src/main/preload.ts",
+      "remake/src/renderer/types/index.ts",
+      "remake/src/renderer/components/SettingsModal/SettingsModal.tsx",
+      "release/AutoSaverNext 1.0.0.exe"
+    ],
+    "summary": "指定された9大広告ブロック・セキュリティフィルターの完全統合と個別ON/OFF・一括更新UIの実装",
+    "purpose": "EasyList, EasyPrivacy, AdGuard Japanese, uBlock filters, Badware, Peter Lowe, Malicious URLs, LAN Intrusion, AI Widgets の9フィルターを完全サポート",
+    "scope": "AdBlockサービス、設定永続化、設定モーダルUI、ポータブルキャッシュエンジン",
+    "concerns": "なし（型チェック・ポータブルEXE再生成検証完了）"
+  },
+  {
+    "timestamp": "2026-08-21T12:34:00+09:00",
+    "target_files": [
+      "remake/src/main/services/adblocker.ts",
+      "remake/src/main/main.ts",
+      "release/AutoSaverNext 1.0.0.exe"
+    ],
+    "summary": "FiltersEngineコア直接フックによるregisterPreloadScriptエラーの完全解消と全フィルターURL（404/403）の修正・動作確認",
+    "purpose": "Electron 34環境で発生していたthis.session.registerPreloadScript例外と外部フィルターURLの取得エラーを根本解消し、ネットワークブロックとコスメティックCSS注入の安定化を完了",
+    "scope": "AdBlockService（FiltersEngine + Request + insertCSS）、main.ts（dom-ready / did-finish-loadフック）、9大フィルターRAW URL修正",
+    "concerns": "なし（全URL 200 OK取得確認、型チェック・EXE再生成完了）"
+  },
+  {
+    "timestamp": "2026-08-21T12:38:30+09:00",
+    "target_files": [
+      "削除/"
+    ],
+    "summary": "旧Python版（PySide6/QtWebEngine）のファイル・フォルダ一式を「削除」フォルダへ移動・整理",
+    "purpose": "リメイク版（AutoSaver Next）への移行に伴い、ルートディレクトリを整理して不要になったPythonファイルを隔離",
+    "scope": "旧Pythonコード（.py）、.spec、.lnk、設定テキスト、キャッシュ、旧データフォルダ",
+    "concerns": "なし"
+  },
+  {
+    "timestamp": "2026-08-21T12:55:00+09:00",
+    "target_files": [
+      "remake/src/renderer/components/BookmarksModal/BookmarksModal.tsx",
+      "remake/src/renderer/components/SettingsModal/SettingsModal.tsx",
+      "remake/src/renderer/hooks/useSettings.ts",
+      "remake/src/renderer/components/BrowserArea/BrowserArea.tsx",
+      "remake/src/main/services/queue.ts",
+      "remake/src/renderer/App.tsx",
+      "release/AutoSaverBrowser.exe"
+    ],
+    "summary": "3つの不満点（ブックマーク手打ち不要化、設定フォルダ変更時のリセット防止、大量保存時のタイムアウト拡張＆自動リトライ）の根本解消",
+    "purpose": "1. ブックマークモーダルに現在タブのワンクリッククイック追加ボタンと自動URL補完を実装。2. 設定モーダルでフォルダ参照時に他のチェック状態が初期化されないようステート管理を修正。3. 大量タブオープン時にキュー待機でタイムアウトせず順次消化＆90秒実行タイムアウト＋1回自動リトライを導入",
+    "scope": "ブックマークUI、設定モーダル、設定フック、保存キューマネージャー、ブラウザ領域",
+    "concerns": "なし（型チェック・ポータブルEXE再生成検証完了）"
+  },
+  {
+    "timestamp": "2026-08-21T19:20:00+09:00",
+    "target_files": [
+      "package.json",
+      "src/main/services/portablePaths.ts",
+      "コンパイル.bat",
+      "起動テスト.bat",
+      "release/AutoSaverNext 1.0.0.exe"
+    ],
+    "summary": "remake/ からルートへ移設した際に取り残された1階層ズレのパスを修正し、コンパイル.batのポータブルEXE出力先を release/ に復旧",
+    "purpose": "コンパイル.bat 実行時にEXEがプロジェクト外（★toolcodes/release）へ出力され「ビルドが動かない」状態になっていた問題の根本解消",
+    "scope": "electron-builder の directories.output（../release→release）と win.icon（../USB.ico→USB.ico）、開発時のポータブルルート解決（../../→../）、両バッチのエラー時 pause と出力先表示",
+    "concerns": "旧設定で生成された ★toolcodes/release フォルダが残存（削除は権限で保留、手動削除推奨）。EXEの実起動動作は未検証"
+  },
+  {
+    "timestamp": "2026-08-21T19:45:00+09:00",
+    "target_files": [
+      ".gitignore",
+      "githubpush.bat",
+      "コンパイル.bat",
+      "起動テスト.bat",
+      "README.md"
+    ],
+    "summary": "GitHub プッシュ用バッチの新規作成と .gitignore 整備、全バッチのエンコーディングを CP932 へ統一してcmdパーサ破損を解消",
+    "purpose": "https://github.com/KisaragiIchigo/AutoSaveBrowser へワンクリックでソース公開できるようにしつつ、portable_data（Cookie・ログインセッション 106MB）の誤公開を構造的に防止する",
+    "scope": "githubpush.bat（リポジトリ初期化・コミット者設定・origin登録/更新・portable_data除外検証・コミット・プッシュ）、.gitignore（node_modules/dist/dist-electron/release/portable_data/save 除外）、README のバッチ表と公開時注意、既存2バッチのエンコーディング変換",
+    "concerns": "UTF-8(BOM無し)+chcp 65001 のバッチは cmd がバイトオフセットを誤り、日本語行の直後の行が欠落してset /pが壊れることを実測で確認。CP932 + chcp 932 へ統一して解消済み。今後バッチに日本語を書く際は必ず CP932 で保存すること。実際のGitHubへのプッシュ（認証）は未実行。"
+  }
+]

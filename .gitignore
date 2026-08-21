@@ -1,0 +1,24 @@
+# 依存パッケージ
+node_modules/
+
+# ビルド成果物
+dist/
+dist-electron/
+release/
+
+# ポータブルデータ（Cookie・ログインセッション・保存履歴を含むため絶対に公開しない）
+portable_data/
+
+# 保存されたアーカイブ
+save/
+
+# ログ・OS生成物
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# エディタ設定
+.vscode/
+.idea/
