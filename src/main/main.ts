@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, shell, webContents } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog, shell, webContents, Menu } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import { PortablePathManager } from './services/portablePaths';
@@ -6,6 +6,7 @@ import { StorageService } from './services/storage';
 import { AdBlockService } from './services/adblocker';
 import { SaveQueueManager } from './services/queue';
 import { ArchiverService } from './services/archiver';
+import { ShortcutService } from './services/shortcuts';
 import { AppSettings, BookmarkItem, SaveFormat } from '../renderer/types';
 
 // ポータブル初期化（実行ディレクトリ直下に portable_data を設定）
@@ -15,6 +16,10 @@ StorageService.initialize();
 let mainWindow: BrowserWindow | null = null;
 
 function createWindow(): void {
+  // 既定メニューのアクセラレータ（Ctrl+W でウィンドウを閉じる / Ctrl+R でアプリ全体を再読込 / Alt でメニューバー起動）が
+  // アプリ独自のショートカットを奪うため、メニュー自体を無効化する
+  Menu.setApplicationMenu(null);
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 850,
@@ -33,8 +38,26 @@ function createWindow(): void {
   SaveQueueManager.setMainWindow(mainWindow);
   AdBlockService.initialize();
 
+  // ショートカット・マウスサイドボタンの受け口を初期化
+  ShortcutService.setMainWindow(mainWindow);
+  ShortcutService.registerWindowCommands(mainWindow);
+  ShortcutService.attachToWebContents(mainWindow.webContents);
+
+  // Webview（ゲスト）へサイドボタン検知用の preload を注入する
+  mainWindow.webContents.on('will-attach-webview', (_event, webPreferences) => {
+    webPreferences.preload = path.join(__dirname, 'webview-preload.js');
+    webPreferences.nodeIntegration = false;
+    webPreferences.contextIsolation = true;
+  });
+
   // 全 WebContents の生成をフック
   app.on('web-contents-created', (_event, contents) => {
+    // Webview 側にフォーカスがある間もアプリのショートカットを効かせる
+    // （DevTools のキー入力までは横取りしない）
+    if (contents.getType() === 'webview') {
+      ShortcutService.attachToWebContents(contents);
+    }
+
     // ページロード完了時にコスメティックフィルター（CSS要素非表示）を注入
     contents.on('dom-ready', () => {
       AdBlockService.injectCosmetics(contents);
@@ -91,6 +114,14 @@ app.on('window-all-closed', () => {
 });
 
 // ===== IPC ハンドラー =====
+
+// Webview 内のマウスサイドボタンからのナビゲーション要求
+// 信頼できないページ由来のため、許可リストに一致するもの以外は破棄する
+ipcMain.on('guest:nav-command', (_event, action: unknown) => {
+  if (action === 'go-back' || action === 'go-forward') {
+    ShortcutService.dispatchNavigation(action);
+  }
+});
 
 // ウィンドウ操作
 ipcMain.handle('window:minimize', () => {

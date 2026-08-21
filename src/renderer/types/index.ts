@@ -51,6 +51,19 @@ export interface ArchiveRecord {
   errorMessage?: string;
 }
 
+export type ShortcutAction =
+  | 'new-tab'
+  | 'close-tab'
+  | 'focus-address'
+  | 'bookmark'
+  | 'save-current'
+  | 'toggle-save-mode'
+  | 'toggle-sidebar'
+  | 'reload'
+  | 'go-back'
+  | 'go-forward'
+  | 'toggle-devtools';
+
 export interface TabData {
   id: string;
   url: string;
@@ -108,6 +121,7 @@ export interface IElectronAPI {
   onArchiveStatusChanged: (callback: (record: ArchiveRecord) => void) => () => void;
   onAdblockStatusChanged: (callback: (status: { updating: boolean; message?: string }) => void) => () => void;
   onOpenNewTabRequested: (callback: (data: { url: string; disposition?: string }) => void) => () => void;
+  onShortcut: (callback: (action: ShortcutAction) => void) => () => void;
 }
 
 declare global {

@@ -11,6 +11,7 @@ import { ArchiveSidebar } from './components/Sidebar/ArchiveSidebar';
 import { SettingsModal } from './components/SettingsModal/SettingsModal';
 import { BookmarksModal } from './components/BookmarksModal/BookmarksModal';
 import { ToastContainer, ToastItem } from './components/Toast/ToastContainer';
+import { webviewRegistry } from './lib/webviewRegistry';
 
 export const App: React.FC = () => {
   // トースト状態
@@ -82,31 +83,32 @@ export const App: React.FC = () => {
     };
   }, [isSaveMode, addTab, showToast]);
 
-  // ナビゲーション
-  const handleNavigate = (url: string) => {
-    updateTab(activeTabId, { url });
-  };
+  // ナビゲーション（対象 Webview はタブIDで引く。src 属性は初期URLのまま固定されるため）
+  const handleNavigate = useCallback((url: string) => {
+    const webview = webviewRegistry.get(activeTabId);
+    updateTab(activeTabId, { url, isLoading: true });
+    webview?.loadURL(url).catch(() => {
+      updateTab(activeTabId, { isLoading: false });
+    });
+  }, [activeTabId, updateTab]);
 
-  const handleGoBack = () => {
-    const activeWebview = document.querySelector(`webview[src="${activeTab?.url}"]`) as any;
-    if (activeWebview && activeWebview.canGoBack?.()) {
-      activeWebview.goBack();
+  const handleGoBack = useCallback(() => {
+    const webview = webviewRegistry.get(activeTabId);
+    if (webview?.canGoBack()) {
+      webview.goBack();
     }
-  };
+  }, [activeTabId]);
 
-  const handleGoForward = () => {
-    const activeWebview = document.querySelector(`webview[src="${activeTab?.url}"]`) as any;
-    if (activeWebview && activeWebview.canGoForward?.()) {
-      activeWebview.goForward();
+  const handleGoForward = useCallback(() => {
+    const webview = webviewRegistry.get(activeTabId);
+    if (webview?.canGoForward()) {
+      webview.goForward();
     }
-  };
+  }, [activeTabId]);
 
-  const handleReload = () => {
-    const activeWebview = document.querySelector(`webview[src="${activeTab?.url}"]`) as any;
-    if (activeWebview && activeWebview.reload) {
-      activeWebview.reload();
-    }
-  };
+  const handleReload = useCallback(() => {
+    webviewRegistry.get(activeTabId)?.reload();
+  }, [activeTabId]);
 
   // SaveMode トグル
   const handleToggleSaveMode = () => {
@@ -158,6 +160,8 @@ export const App: React.FC = () => {
     onToggleSaveMode: handleToggleSaveMode,
     onToggleSidebar: () => setIsSidebarOpen((prev) => !prev),
     onReload: handleReload,
+    onGoBack: handleGoBack,
+    onGoForward: handleGoForward,
   });
 
   return (

@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { AppSettings, BookmarkItem, ArchiveRecord, SaveFormat } from '../renderer/types';
+import { AppSettings, BookmarkItem, ArchiveRecord, SaveFormat, ShortcutAction } from '../renderer/types';
 
 contextBridge.exposeInMainWorld('electronAPI', {
   // ウィンドウ操作
@@ -59,5 +59,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     const subscription = (_event: any, data: { url: string; disposition?: string }) => callback(data);
     ipcRenderer.on('webview:open-new-tab', subscription);
     return () => ipcRenderer.removeListener('webview:open-new-tab', subscription);
+  },
+
+  onShortcut: (callback: (action: ShortcutAction) => void) => {
+    const subscription = (_event: any, action: ShortcutAction) => callback(action);
+    ipcRenderer.on('app:shortcut', subscription);
+    return () => ipcRenderer.removeListener('app:shortcut', subscription);
   },
 });

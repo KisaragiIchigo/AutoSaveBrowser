@@ -1,34 +1,22 @@
 import { ipcRenderer } from 'electron';
 
-// Webview 内でのリンククリック・キーボード操作を監視
-window.addEventListener('DOMContentLoaded', () => {
-  document.addEventListener('click', (e: MouseEvent) => {
-    // Ctrl+クリック または Cmd+クリック
-    if (e.ctrlKey || e.metaKey || e.button === 1) { // 1はマウス中クリック
-      const target = (e.target as HTMLElement)?.closest('a');
-      if (target && target.href && !target.href.startsWith('javascript:')) {
-        e.preventDefault();
-        e.stopPropagation();
-        ipcRenderer.sendToHost('ctrl-click-link', {
-          url: target.href,
-          title: target.innerText || target.title || '',
-        });
-      }
-    }
-  }, true);
+// マウスのサイドボタン（戻る/進む）はページ側へ配送されるため、
+// ゲストで捕捉して Main プロセスへ通知する。
+// app-command が発火しない環境での取りこぼし対策であり、
+// 重複は Main 側の ShortcutService が弾く。
+const NAVIGATION_BUTTONS: Record<number, 'go-back' | 'go-forward'> = {
+  3: 'go-back',
+  4: 'go-forward',
+};
 
-  // 中クリック (auxclick) の補足
-  document.addEventListener('auxclick', (e: MouseEvent) => {
-    if (e.button === 1) {
-      const target = (e.target as HTMLElement)?.closest('a');
-      if (target && target.href && !target.href.startsWith('javascript:')) {
-        e.preventDefault();
-        e.stopPropagation();
-        ipcRenderer.sendToHost('ctrl-click-link', {
-          url: target.href,
-          title: target.innerText || target.title || '',
-        });
-      }
-    }
-  }, true);
-});
+const handleNavigationButton = (e: MouseEvent) => {
+  const action = NAVIGATION_BUTTONS[e.button];
+  if (!action) return;
+
+  e.preventDefault();
+  e.stopPropagation();
+  ipcRenderer.send('guest:nav-command', action);
+};
+
+window.addEventListener('mouseup', handleNavigationButton, true);
+window.addEventListener('auxclick', handleNavigationButton, true);

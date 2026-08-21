@@ -168,5 +168,35 @@
     "purpose": "https://github.com/KisaragiIchigo/AutoSaveBrowser へワンクリックでソース公開できるようにしつつ、portable_data（Cookie・ログインセッション 106MB）の誤公開を構造的に防止する",
     "scope": "githubpush.bat（リポジトリ初期化・コミット者設定・origin登録/更新・portable_data除外検証・コミット・プッシュ）、.gitignore（node_modules/dist/dist-electron/release/portable_data/save 除外）、README のバッチ表と公開時注意、既存2バッチのエンコーディング変換",
     "concerns": "UTF-8(BOM無し)+chcp 65001 のバッチは cmd がバイトオフセットを誤り、日本語行の直後の行が欠落してset /pが壊れることを実測で確認。CP932 + chcp 932 へ統一して解消済み。今後バッチに日本語を書く際は必ず CP932 で保存すること。実際のGitHubへのプッシュ（認証）は未実行。"
+  },
+  {
+    "timestamp": "2026-08-21T19:52:00+09:00",
+    "target_files": [
+      "githubpush.bat",
+      "README.md"
+    ],
+    "summary": "githubpush.bat のメールアドレス入力プロンプトを廃止し、GitHub の noreply アドレスを既定値として自動設定",
+    "purpose": "実メールアドレスを公開リポジトリのコミット履歴に残したくないというユーザー要望への対応。git はコミットに user.email が必須のため、プロンプト削除ではなく noreply アドレスの既定値化で解決",
+    "scope": "githubpush.bat 冒頭の GIT_NAME_DEFAULT / GIT_MAIL_DEFAULT 定数、コミット者情報の設定ブロック、README のバッチ表",
+    "concerns": "GitHub 側で「メールアドレスを公開しない」を有効にしている場合、コミットをアカウントへ紐付けるには Settings ＞ Emails に表示される数字プレフィックス付きアドレスへの書き換えが必要。バッチ冒頭のコメントに手順を明記済み"
+  },
+  {
+    "timestamp": "2026-08-21T20:15:00+09:00",
+    "target_files": [
+      "src/main/services/shortcuts.ts",
+      "src/main/main.ts",
+      "src/main/webview-preload.ts",
+      "src/main/preload.ts",
+      "src/renderer/lib/webviewRegistry.ts",
+      "src/renderer/hooks/useShortcuts.ts",
+      "src/renderer/components/BrowserArea/BrowserArea.tsx",
+      "src/renderer/App.tsx",
+      "src/renderer/types/index.ts",
+      "README.md"
+    ],
+    "summary": "マウスサイドボタンでの戻る/進むを新規実装し、Webview フォーカス時に全ショートカットが無効化されていた問題とナビゲーション対象の取得破綻を根本解消",
+    "purpose": "「サイドボタンで戻る/進むが効かない」「Ctrl+T や Alt が動かない」というユーザー報告に対し、4つの独立した原因（ショートカット検知層・既定メニューのアクセラレータ・サイドボタン未実装・Webview参照の取得方法）をすべて修正する",
+    "scope": "ShortcutService（app-command / before-input-event の一元受け口とナビゲーション重複除去）、Menu.setApplicationMenu(null)、will-attach-webview によるゲスト preload 注入、webviewRegistry（タブID→Webview要素）、useShortcuts の IPC 購読化、BrowserArea の src 固定化、App のナビゲーションハンドラ",
+    "concerns": "原因1: useShortcuts が Renderer の window.keydown だったため Webview フォーカス中は発火しなかった。原因2: 既定メニューが残っており Ctrl+W がウィンドウを閉じ Ctrl+R がアプリ全体を再読込していた。原因3: サイドボタンのハンドラが存在しなかった。原因4: querySelector('webview[src=...]') が遷移後に一致せず、かつ src={tab.url} バインドが遷移のたびに再ナビゲートを起こして履歴を壊していた。webview-preload.ts はどこにもアタッチされていない死にコードだったため、サイドボタン検知用に作り直して will-attach-webview で注入するよう変更（Ctrl+クリックは従来通り setWindowOpenHandler が担当）。IPC 境界の検証は zod 未導入のため文字列の許可リストで実施。型チェック・ビルド・起動確認済みだが、マウスサイドボタンの実機動作は入力デバイスが必要なため未検証"
   }
 ]

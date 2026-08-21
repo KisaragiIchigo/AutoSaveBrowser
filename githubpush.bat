@@ -6,6 +6,13 @@ cd /d "%~dp0"
 
 set "REPO_URL=https://github.com/KisaragiIchigo/AutoSaveBrowser.git"
 
+rem ---- コミット者情報（実メールアドレスを公開しないため GitHub の noreply を使用）----
+rem  GitHub の設定で「メールアドレスを公開しない」を有効にしている場合は、
+rem  Settings ＞ Emails に表示される「数字＋ユーザー名」形式のアドレスに書き換えてください。
+rem  例: set "GIT_MAIL_DEFAULT=12345678+KisaragiIchigo@users.noreply.github.com"
+set "GIT_NAME_DEFAULT=KisaragiIchigo"
+set "GIT_MAIL_DEFAULT=KisaragiIchigo@users.noreply.github.com"
+
 echo ==================================================
 echo  AutoSaver Next - GitHub プッシュ
 echo  送信先: %REPO_URL%
@@ -44,14 +51,14 @@ git config core.quotepath false
 
 for /f "delims=" %%i in ('git config user.name 2^>nul') do set "GIT_USER=%%i"
 if not defined GIT_USER (
-  echo [INFO] コミット者情報が未設定です。このリポジトリ用に設定します。
-  set /p "GIT_USER=  GitHub ユーザー名: "
-  git config user.name "!GIT_USER!"
+  git config user.name "%GIT_NAME_DEFAULT%"
+  echo [INFO] コミット者名を設定しました: %GIT_NAME_DEFAULT%
 )
 for /f "delims=" %%i in ('git config user.email 2^>nul') do set "GIT_MAIL=%%i"
 if not defined GIT_MAIL (
-  set /p "GIT_MAIL=  メールアドレス: "
-  git config user.email "!GIT_MAIL!"
+  git config user.email "%GIT_MAIL_DEFAULT%"
+  echo [INFO] コミット用アドレスを設定しました: %GIT_MAIL_DEFAULT%
+  echo        ［実メールアドレスは公開されません］
   echo.
 )
 

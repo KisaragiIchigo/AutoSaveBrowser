@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { TabData, AppSettings } from '../../types';
+import { webviewRegistry } from '../../lib/webviewRegistry';
 
 interface BrowserAreaProps {
   tabs: TabData[];
@@ -25,6 +26,9 @@ export const BrowserArea: React.FC<BrowserAreaProps> = ({
   const webviewRefs = useRef<Record<string, any>>({});
   const autoSaveTimers = useRef<Record<string, NodeJS.Timeout>>({});
   const enqueuedTabIds = useRef<Set<string>>(new Set());
+  // src 属性は初期URLのまま固定する。タブ状態のURL更新で src を再設定すると
+  // 遷移のたびに再ナビゲートが走り、戻る/進むの履歴が壊れるため
+  const initialUrls = useRef<Record<string, string>>({});
 
   // 各タブのWebviewイベントリスナー設定
   useEffect(() => {
@@ -154,6 +158,10 @@ export const BrowserArea: React.FC<BrowserAreaProps> = ({
     <main className="flex-1 relative bg-bg-app overflow-hidden">
       {tabs.map((tab) => {
         const isActive = tab.id === activeTabId;
+        if (!initialUrls.current[tab.id]) {
+          initialUrls.current[tab.id] = tab.url;
+        }
+        const initialSrc = initialUrls.current[tab.id];
         return (
           <div
             key={tab.id}
@@ -164,10 +172,16 @@ export const BrowserArea: React.FC<BrowserAreaProps> = ({
             {/* @ts-ignore */}
             <webview
               ref={(el: any) => {
-                if (el) webviewRefs.current[tab.id] = el;
-                else delete webviewRefs.current[tab.id];
+                if (el) {
+                  webviewRefs.current[tab.id] = el;
+                  webviewRegistry.register(tab.id, el);
+                } else {
+                  delete webviewRefs.current[tab.id];
+                  delete initialUrls.current[tab.id];
+                  webviewRegistry.unregister(tab.id);
+                }
               }}
-              src={tab.url}
+              src={initialSrc}
               className="w-full h-full border-none bg-white"
               {...({ allowpopups: 'true' } as any)}
               webpreferences="contextIsolation=yes, allowRunningInsecureContent=no"
